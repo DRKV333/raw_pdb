@@ -57,6 +57,8 @@ set(SOURCES
 	PDB_TPITypes.h
 	PDB_Types.cpp
 	PDB_Types.h
+	PDB_ToString.cpp
+	PDB_ToString.h
 	PDB_Util.h
 )
 
