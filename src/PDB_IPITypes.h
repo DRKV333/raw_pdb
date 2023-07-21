@@ -86,6 +86,22 @@ namespace PDB
 				union Data
 				{
 #pragma pack(push, 1)
+					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L1680
+					struct
+					{
+						uint32_t scopeId;    // parent scope of the ID, 0 if global
+						uint32_t type;       // function type
+						PDB_FLEXIBLE_ARRAY_MEMBER(char, name);
+					} LF_FUNC_ID;
+
+					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L1687
+					struct
+					{
+						uint32_t parentType; // type index of parent
+						uint32_t type;       // function type
+						PDB_FLEXIBLE_ARRAY_MEMBER(char, name);
+					} LF_MFUNC_ID;
+
 					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L1694
 					struct
 					{
@@ -101,12 +117,39 @@ namespace PDB
 					} LF_SUBSTR_LIST;
 
 					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L1726
-
 					struct
 					{
 						uint16_t count;
-						PDB_FLEXIBLE_ARRAY_MEMBER(uint32_t, typeIndices);
+						union
+						{
+							struct
+							{
+								uint32_t currentDirectory;
+								uint32_t buildTool;           // Cl.exe
+								uint32_t sourceFile;          // foo.cpp
+								uint32_t programDatabaseFile; // foo.pdb
+								uint32_t commandArguments;    // -I etc
+							} knownIndices;
+							PDB_FLEXIBLE_ARRAY_MEMBER(uint32_t, typeIndices);
+						};
 					} LF_BUILDINFO;
+
+					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L1700
+					struct
+					{
+						uint32_t type; // UDT's type index
+						uint32_t src;  // index to LF_STRING_ID record where source file name is saved
+						uint32_t line; // line number
+					} LF_UDT_SRC_LINE;
+
+					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L1707
+					struct
+					{
+						uint32_t type; // UDT's type index
+						uint32_t src;  // index into string table where source file name is saved
+						uint32_t line; // line number
+						uint16_t imod; // module that contributes this UDT definition 
+					} LF_UDT_MOD_SRC_LINE;
 #pragma pack(pop)
 				} data;
 			};
